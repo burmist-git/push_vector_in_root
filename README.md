@@ -11,7 +11,7 @@
 
 ## 1. Description
 
-   This library concert set (vector) of parameters (features) into the root format with the timestamp.
+   This library insert set (vector) of parameters (features) into the root format with the timestamp.
 
 ## 2. Useful links
    * Markdown syntax guide --> (https://confluence.atlassian.com/display/STASH038/Markdown+syntax+guide)

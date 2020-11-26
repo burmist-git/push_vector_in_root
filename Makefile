@@ -16,6 +16,8 @@ ROOTLIBS    = $(shell $(ROOTSYS)/bin/root-config --libs)
 ROOTGLIBS   = $(shell $(ROOTSYS)/bin/root-config --glibs)
 ROOTLDFLAGS = $(shell $(ROOTSYS)/bin/root-config --ldflags)
 
+RELVERSION  = $(shell cat .release)
+
 CXX  = g++
 CXX += -I./
 
@@ -28,7 +30,11 @@ CXXFLAGS += $(ROOTLDFLAGS)
 MakefileFullPath = $(abspath $(lastword $(MAKEFILE_LIST)))
 MakefileDirFullPath = $(shell dirname $(MakefileFullPath))
 OUTLIB = $(MakefileDirFullPath)/obj/
-INSTALLDIR = $(MakefileDirFullPath)/install/
+INSTALLDIR = $(MakefileDirFullPath)/install.$(RELVERSION)/
+INSTALLDIR_USR_BIN = /usr/local/bin/
+INSTALLDIR_USR_LIB = /usr/local/lib/
+INSTALLDIR_USR_INC = /usr/local/include/
+INSTALLDIR_USR_ECT = /usr/local/ect/
 
 .PHONY: all makedir clean printmakeinfo
 
@@ -40,11 +46,17 @@ makedir:
 	mkdir -p $(OUTLIB);
 
 printmakeinfo:
-	$(info CXX                 = "$(CXX)")
-	$(info CXXFLAGS            = "$(CXXFLAGS)")
-	$(info MakefileFullPath    = "$(MakefileFullPath)")
-	$(info MakefileDirFullPath = "$(MakefileDirFullPath)")
-	$(info OUTLIB              = "$(OUTLIB)")
+	$(info CXX                  = "$(CXX)")
+	$(info CXXFLAGS             = "$(CXXFLAGS)")
+	$(info MakefileFullPath     = "$(MakefileFullPath)")
+	$(info MakefileDirFullPath  = "$(MakefileDirFullPath)")
+	$(info OUTLIB               = "$(OUTLIB)")
+	$(info INSTALLDIR           = "$(INSTALLDIR)")
+	$(info INSTALLDIR_USR_BIN   = "$(INSTALLDIR_USR_BIN)")
+	$(info INSTALLDIR_USR_LIB   = "$(INSTALLDIR_USR_LIB)")
+	$(info INSTALLDIR_USR_INC   = "$(INSTALLDIR_USR_INC)")
+	$(info INSTALLDIR_USR_ECT   = "$(INSTALLDIR_USR_ECT)")
+	$(info RELVERSION           = "$(RELVERSION)")
 
 ex01_push: ex01_push.cc obj/libpushVectorInRoot.so
 	$(CXX) -o $@ $< $(OUTLIB)*.so $(CXXFLAGS)
@@ -60,14 +72,20 @@ obj/libpushVectorInRoot.so: obj/pushVectorInRoot.o
 
 install: makedir obj/libpushVectorInRoot.so
 	mkdir -p $(INSTALLDIR);
-	ln -s $(OUTLIB)libpushVectorInRoot.so $(INSTALLDIR)libpushVectorInRoot.so
-	ln -s $(MakefileDirFullPath)/libpushVectorInRoot.h $(INSTALLDIR)libpushVectorInRoot.h
+	cp $(OUTLIB)libpushVectorInRoot.so $(INSTALLDIR)libpushVectorInRoot.so
+	cp $(MakefileDirFullPath)/libpushVectorInRoot.h $(INSTALLDIR)libpushVectorInRoot.h
+	sudo ln -s $(INSTALLDIR)libpushVectorInRoot.so $(INSTALLDIR_USR_LIB)libpushVectorInRoot.so
+	sudo ln -s $(INSTALLDIR)libpushVectorInRoot.h $(INSTALLDIR_USR_INC)libpushVectorInRoot.h
+
+cleaninstall:
+	rm -rf $(INSTALLDIR)
+	sudo rm -rf $(INSTALLDIR_USR_LIB)libpushVectorInRoot.so
+	sudo rm -rf $(INSTALLDIR_USR_INC)libpushVectorInRoot.h
 
 clean:
 	rm -f *~
 	rm -f .*~
 	rm -f ex01_push
 	rm -f ex02_plot
-	rm -rf install
 	rm -rf obj
 	rm -f $(OUTLIB)*

@@ -1,7 +1,7 @@
 *~
 src
 obj
-install
+install*
 data
 ex01_push
 ex02_plot
